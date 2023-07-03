@@ -31,7 +31,10 @@ mod watcher;
 pub mod error;
 pub mod prelude;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(
+    not(target_arch = "wasm32"),
+    not(feature = "runtime-teaclave")
+))]
 pub use adapter::FileAdapter;
 pub use adapter::{Adapter, Filter, MemoryAdapter, NullAdapter};
 

@@ -1,7 +1,10 @@
 #![allow(non_snake_case)]
 use crate::{Adapter, DefaultModel, Model, NullAdapter, Result};
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(
+    not(target_arch = "wasm32"),
+    not(feature = "runtime-teaclave")
+))]
 use crate::FileAdapter;
 
 use async_trait::async_trait;
@@ -26,11 +29,14 @@ pub trait TryIntoAdapter: Send + Sync {
 #[async_trait]
 impl TryIntoModel for &'static str {
     async fn try_into_model(self) -> Result<Box<dyn Model>> {
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(
+            not(target_arch = "wasm32"),
+            not(feature = "runtime-teaclave")
+        ))]
         {
             Ok(Box::new(DefaultModel::from_file(self).await?))
         }
-        #[cfg(target_arch = "wasm32")]
+        #[cfg(any(target_arch = "wasm32", feature = "runtime-teaclave"))]
         {
             Ok(Box::new(DefaultModel::from_str(self).await?))
         }
@@ -55,12 +61,15 @@ where
 #[async_trait]
 impl TryIntoAdapter for &'static str {
     async fn try_into_adapter(self) -> Result<Box<dyn Adapter>> {
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(
+            not(target_arch = "wasm32"),
+            not(feature = "runtime-teaclave")
+        ))]
         {
             Ok(Box::new(FileAdapter::new(self)))
         }
 
-        #[cfg(target_arch = "wasm32")]
+        #[cfg(any(target_arch = "wasm32", feature = "runtime-teaclave"))]
         {
             Ok(Box::new(NullAdapter))
         }

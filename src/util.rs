@@ -14,6 +14,7 @@ static ESC_A: Lazy<Regex> = Lazy::new(|| regex!(r"\b(r\d*|p\d*)\."));
 static ESC_G: Lazy<Regex> = Lazy::new(|| {
     regex!(r"\b(g\d*)\(((?:\s*[r|p]\d*\.\w+\s*,\s*){1,2}\s*[r|p]\d*\.\w+\s*)\)")
 });
+#[cfg(not(feature = "runtime-teaclave"))]
 static ESC_C: Lazy<Regex> = Lazy::new(|| regex!(r#"(\s*"[^"]*"?|\s*[^,]*)"#));
 pub(crate) static ESC_E: Lazy<Regex> =
     Lazy::new(|| regex!(r"\beval\(([^)]*)\)"));
@@ -36,6 +37,7 @@ pub fn escape_eval(m: &str) -> Cow<str> {
     ESC_E.replace_all(m, "eval(escape_assertion(${1}))")
 }
 
+#[cfg(not(feature = "runtime-teaclave"))]
 pub fn parse_csv_line<S: AsRef<str>>(line: S) -> Option<Vec<String>> {
     let line = line.as_ref().trim();
     if line.is_empty() || line.starts_with('#') {

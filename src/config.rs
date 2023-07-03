@@ -11,15 +11,18 @@ use async_std::{fs::File, path::Path};
 
 #[cfg(feature = "runtime-tokio")]
 use std::{io::Cursor, path::Path};
-#[cfg(feature = "runtime-tokio")]
-use tokio::io::{
-    AsyncBufReadExt, AsyncReadExt, BufReader, Error as IoError, ErrorKind,
-};
+#[cfg(any(feature = "runtime-tokio", feature = "runtime-teaclave"))]
+use tokio::io::{AsyncBufReadExt, BufReader, Error as IoError, ErrorKind};
 
 #[cfg(all(feature = "runtime-tokio", not(target_arch = "wasm32")))]
 use tokio::fs::File;
 
 use std::collections::HashMap;
+
+#[cfg(feature = "runtime-teaclave")]
+use std::io::Cursor;
+#[cfg(feature = "runtime-tokio")]
+use tokio::io::AsyncReadExt;
 
 const DEFAULT_SECTION: &str = "default";
 const DEFAULT_COMMENT: &str = "#";
@@ -31,7 +34,7 @@ pub(crate) struct Config {
 }
 
 impl Config {
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(all(not(target_arch = "wasm32"), not(feature = "runtime-teaclave")))]
     pub(crate) async fn from_file<P: AsRef<Path>>(p: P) -> Result<Self> {
         let mut c = Config {
             data: HashMap::new(),
@@ -51,7 +54,7 @@ impl Config {
         Ok(c)
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(all(not(target_arch = "wasm32"), not(feature = "runtime-teaclave")))]
     async fn parse<P: AsRef<Path>>(&mut self, p: P) -> Result<()> {
         let mut f = File::open(p).await?;
         let mut c = Vec::new();

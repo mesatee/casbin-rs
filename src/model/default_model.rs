@@ -27,7 +27,7 @@ pub struct DefaultModel {
 }
 
 impl DefaultModel {
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(all(not(target_arch = "wasm32"), not(feature = "runtime-teaclave")))]
     pub async fn from_file<P: AsRef<Path>>(p: P) -> Result<DefaultModel> {
         let cfg = Config::from_file(p).await?;
 

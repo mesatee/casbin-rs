@@ -4,7 +4,10 @@ pub use crate::{
     RbacApi, Result, TryIntoAdapter, TryIntoModel,
 };
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(
+    not(target_arch = "wasm32"),
+    not(feature = "runtime-teaclave")
+))]
 pub use crate::FileAdapter;
 
 #[cfg(feature = "cached")]

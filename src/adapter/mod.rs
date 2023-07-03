@@ -1,11 +1,14 @@
 use async_trait::async_trait;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "runtime-teaclave")))]
 pub mod file_adapter;
 pub mod memory_adapter;
 pub mod null_adapter;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(
+    not(target_arch = "wasm32"),
+    not(feature = "runtime-teaclave")
+))]
 pub use file_adapter::FileAdapter;
 pub use memory_adapter::MemoryAdapter;
 pub use null_adapter::NullAdapter;
